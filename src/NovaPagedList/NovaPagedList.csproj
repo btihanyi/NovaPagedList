@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Version>1.0.0-preview1</Version>
+    <Authors>Balazs Tihanyi</Authors>
+    <Company />
+    <Description>Pagination library for .NET projects, built using the latest technologies.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/btihanyi/NovaPagedList</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/btihanyi/NovaPagedList.git</RepositoryUrl>
+    <PackageTags>paging</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>

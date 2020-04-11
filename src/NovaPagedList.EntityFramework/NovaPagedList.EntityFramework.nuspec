@@ -1,0 +1,19 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NovaPagedList.EntityFramework</id>
+    <version>1.0.0-preview1</version>
+    <title>NovaPagedList.EntityFramework</title>
+    <authors>Balazs Tihanyi</authors>
+    <owners>btihanyi</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/btihanyi/NovaPagedList</projectUrl>
+    <repository type="git" url="https://github.com/btihanyi/NovaPagedList.git" />
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Adds async support to the NovaPagedList library for Entity Framework 6 users.</description>
+    <tags>paging</tags>
+    <dependencies>
+        <dependency id="EntityFramework" version="6.2.0" />
+    </dependencies>
+  </metadata>
+</package>
