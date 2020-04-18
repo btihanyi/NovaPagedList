@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>NovaPagedList.EntityFramework</id>
-    <version>1.0.0-preview1</version>
+    <version>1.0.0</version>
     <title>NovaPagedList.EntityFramework</title>
     <authors>Balazs Tihanyi</authors>
     <owners>btihanyi</owners>
@@ -13,6 +13,7 @@
     <description>Adds async support to the NovaPagedList library for Entity Framework 6 users.</description>
     <tags>paging</tags>
     <dependencies>
+        <dependency id="NovaPagedList" version="1.0.0" />
         <dependency id="EntityFramework" version="6.2.0" />
     </dependencies>
   </metadata>
