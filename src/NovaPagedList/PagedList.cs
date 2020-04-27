@@ -47,19 +47,6 @@ namespace NovaPagedList
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PagedList{T}"/> class.
-        /// </summary>
-        /// <param name="subset">The subset items of the superset. It will be converted to a <see cref="List{T}"/> internally.</param>
-        /// <param name="pageNumber">The one-based number of the current page.</param>
-        /// <param name="pageSize">The maximum size of a page.</param>
-        /// <param name="totalItemCount">The total number of items in the superset list.</param>
-        public PagedList(IReadOnlyCollection<T> subset, int pageNumber, int pageSize, int totalItemCount)
-            : this(new List<T>(subset ?? throw new ArgumentNullException(nameof(subset))),
-                   pageNumber, pageSize, totalItemCount)
-        {
-        }
-
-        /// <summary>
         /// The one-based number of the current page.
         /// </summary>
         public int PageNumber { get; }

@@ -9,25 +9,21 @@ namespace NovaPagedList
     /// </summary>
     public static class PagedListExtensions
     {
-        private static IEnumerable<T> CreateSubset<T>(IEnumerable<T> superset, int pageNumber, int pageSize,
-            int totalItemCount, bool adjustLastPageWhenExceeding)
+        private static void AdjustLastPage(ref int pageNumber, int pageSize, int totalItemCount)
         {
-            if (adjustLastPageWhenExceeding)
+            int pageCount = (int) Math.Ceiling((double) totalItemCount / pageSize);
+            if (pageNumber > pageCount)
             {
-                int pageCount = (int) Math.Ceiling((double) totalItemCount / pageSize);
-                if (pageNumber > pageCount)
-                {
-                    pageNumber = pageCount;
-                }
+                pageNumber = pageCount;
             }
+        }
 
-            var subset = superset;
-            if (pageNumber > 1)
-            {
-                subset = subset.Skip((pageNumber - 1) * pageSize);
-            }
-
-            return subset.Take(pageSize);
+        private static List<T> CreatePreallocatedList<T>(IEnumerable<T> subset, int pageNumber, int pageSize, int totalItemCount)
+        {
+            int capacity = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
+            var list = new List<T>(capacity);
+            list.AddRange(subset);
+            return list;
         }
 
         /// <summary>
@@ -37,12 +33,15 @@ namespace NovaPagedList
         /// </summary>
         /// <typeparam name="T">The item type.</typeparam>
         /// <param name="superset">The whole collection of all the items, which can be an <see cref="IQueryable{T}"/> data source.</param>
-        /// <param name="pageNumber">The one-based number of the required page.</param>
+        /// <param name="pageNumber">The one-based number of the required page. If <paramref name="adjustLastPageWhenExceeding"/>
+        /// is <see langword="true"/> and <paramref name="pageNumber"/> is greater than the available pages, then it will be
+        /// set to the number of the last page.</param>
         /// <param name="pageSize">The size of the pages.</param>
         /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
         /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
         /// <returns>A <see cref="PagedList{T}"/> instance if there are available items, or an <see cref="EmptyPagedList{T}"/>
-        /// instance when the superset is empty.</returns>
+        /// instance when the <paramref name="superset"/> is empty or the <paramref name="pageNumber"/> is greater
+        /// than the available pages.</returns>
         public static IPagedList<T> ToPagedList<T>(this IEnumerable<T> superset, int pageNumber, int pageSize,
             bool adjustLastPageWhenExceeding = true)
         {
@@ -62,8 +61,24 @@ namespace NovaPagedList
             int totalItemCount = superset.Count();
             if (totalItemCount > 0)
             {
-                var subset = CreateSubset(superset, pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
-                return new PagedList<T>(subset.ToList(), pageNumber, pageSize, totalItemCount);
+                if (adjustLastPageWhenExceeding)
+                {
+                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
+                }
+                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                {
+                    return new EmptyPagedList<T>(pageSize);
+                }
+
+                var subset = superset;
+                if (pageNumber > 1)
+                {
+                    subset = subset.Skip((pageNumber - 1) * pageSize);
+                }
+                subset.Take(pageSize);
+
+                var list = CreatePreallocatedList(subset, pageNumber, pageSize, totalItemCount);
+                return new PagedList<T>(list, pageNumber, pageSize, totalItemCount);
             }
             else
             {
@@ -76,12 +91,15 @@ namespace NovaPagedList
         /// </summary>
         /// <typeparam name="T">The item type.</typeparam>
         /// <param name="superset">The whole collection of all the items.</param>
-        /// <param name="pageNumber">The one-based number of the required page.</param>
+        /// <param name="pageNumber">The one-based number of the required page. If <paramref name="adjustLastPageWhenExceeding"/>
+        /// is <see langword="true"/> and <paramref name="pageNumber"/> is greater than the available pages, then it will be
+        /// set to the number of the last page.</param>
         /// <param name="pageSize">The size of the pages.</param>
         /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
         /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
         /// <returns>A <see cref="PagedList{T}"/> instance if there are available items, or an <see cref="EmptyPagedList{T}"/>
-        /// instance when the superset is empty.</returns>
+        /// instance when the <paramref name="superset"/> is empty or the <paramref name="pageNumber"/> is greater
+        /// than the available pages.</returns>
         public static IPagedList<T> ToPagedList<T>(this IReadOnlyCollection<T> superset, int pageNumber, int pageSize,
             bool adjustLastPageWhenExceeding = true)
         {
@@ -101,8 +119,24 @@ namespace NovaPagedList
             int totalItemCount = superset.Count;
             if (totalItemCount > 0)
             {
-                var subset = CreateSubset(superset, pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
-                return new PagedList<T>(subset.ToList(), pageNumber, pageSize, totalItemCount);
+                if (adjustLastPageWhenExceeding)
+                {
+                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
+                }
+                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                {
+                    return new EmptyPagedList<T>(pageSize);
+                }
+
+                var subset = (IEnumerable<T>) superset;
+                if (pageNumber > 1)
+                {
+                    subset = subset.Skip((pageNumber - 1) * pageSize);
+                }
+                subset.Take(pageSize);
+
+                var list = CreatePreallocatedList(subset, pageNumber, pageSize, totalItemCount);
+                return new PagedList<T>(list, pageNumber, pageSize, totalItemCount);
             }
             else
             {
@@ -110,6 +144,172 @@ namespace NovaPagedList
             }
         }
 
+        /// <summary>
+        /// Creates an <see cref="IPagedList{T}"/> subset from an <see cref="IReadOnlyList{T}"/> <paramref name="superset"/>.
+        /// </summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="superset">The whole list of all the items.</param>
+        /// <param name="pageNumber">The one-based number of the required page. If <paramref name="adjustLastPageWhenExceeding"/>
+        /// is <see langword="true"/> and <paramref name="pageNumber"/> is greater than the available pages, then it will be
+        /// set to the number of the last page.</param>
+        /// <param name="pageSize">The size of the pages.</param>
+        /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
+        /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
+        /// <returns>A <see cref="PagedList{T}"/> instance if there are available items, or an <see cref="EmptyPagedList{T}"/>
+        /// instance when the <paramref name="superset"/> is empty or the <paramref name="pageNumber"/> is greater
+        /// than the available pages.</returns>
+        public static IPagedList<T> ToPagedList<T>(this IReadOnlyList<T> superset, int pageNumber, int pageSize,
+            bool adjustLastPageWhenExceeding = true)
+        {
+            if (superset == null)
+            {
+                throw new ArgumentNullException(nameof(superset));
+            }
+            if (pageNumber <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), pageNumber, "The page number must be positive.");
+            }
+            if (pageSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "The page size must be positive.");
+            }
+
+            int totalItemCount = superset.Count;
+            if (totalItemCount > 0)
+            {
+                if (adjustLastPageWhenExceeding)
+                {
+                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
+                }
+                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                {
+                    return new EmptyPagedList<T>(pageSize);
+                }
+
+                int from = (pageNumber - 1) * pageSize;
+                int count = Math.Min(from + pageSize, totalItemCount);
+                var subset = new List<T>(count);
+                for (int i = from; i < count; i++)
+                {
+                    subset.Add(superset[i]);
+                }
+
+                return new PagedList<T>(subset, pageNumber, pageSize, totalItemCount);
+            }
+            else
+            {
+                return new EmptyPagedList<T>(pageSize);
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IPagedList{T}"/> subset from an <see cref="List{T}"/> <paramref name="superset"/>.
+        /// </summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="superset">The whole list of all the items.</param>
+        /// <param name="pageNumber">The one-based number of the required page. If <paramref name="adjustLastPageWhenExceeding"/>
+        /// is <see langword="true"/> and <paramref name="pageNumber"/> is greater than the available pages, then it will be
+        /// set to the number of the last page.</param>
+        /// <param name="pageSize">The size of the pages.</param>
+        /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
+        /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
+        /// <returns>A <see cref="PagedList{T}"/> instance if there are available items, or an <see cref="EmptyPagedList{T}"/>
+        /// instance when the <paramref name="superset"/> is empty or the <paramref name="pageNumber"/> is greater
+        /// than the available pages.</returns>
+        public static IPagedList<T> ToPagedList<T>(this List<T> superset, int pageNumber, int pageSize,
+            bool adjustLastPageWhenExceeding = true)
+        {
+            if (superset == null)
+            {
+                throw new ArgumentNullException(nameof(superset));
+            }
+            if (pageNumber <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), pageNumber, "The page number must be positive.");
+            }
+            if (pageSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "The page size must be positive.");
+            }
+
+            int totalItemCount = superset.Count;
+            if (totalItemCount > 0)
+            {
+                if (adjustLastPageWhenExceeding)
+                {
+                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
+                }
+                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                {
+                    return new EmptyPagedList<T>(pageSize);
+                }
+
+                int from = (pageNumber - 1) * pageSize;
+                int count = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
+                var subset = superset.GetRange(from, count);
+
+                return new PagedList<T>(subset, pageNumber, pageSize, totalItemCount);
+            }
+            else
+            {
+                return new EmptyPagedList<T>(pageSize);
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IPagedList{T}"/> subset from an <see cref="T:T[]"/> <paramref name="superset"/>.
+        /// </summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="superset">The whole array of all the items.</param>
+        /// <param name="pageNumber">The one-based number of the required page. If <paramref name="adjustLastPageWhenExceeding"/>
+        /// is <see langword="true"/> and <paramref name="pageNumber"/> is greater than the available pages, then it will be
+        /// set to the number of the last page.</param>
+        /// <param name="pageSize">The size of the pages.</param>
+        /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
+        /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
+        /// <returns>A <see cref="PagedList{T}"/> instance if there are available items, or an <see cref="EmptyPagedList{T}"/>
+        /// instance when the <paramref name="superset"/> is empty or the <paramref name="pageNumber"/> is greater
+        /// than the available pages.</returns>
+        public static IPagedList<T> ToPagedList<T>(this T[] superset, int pageNumber, int pageSize,
+            bool adjustLastPageWhenExceeding = true)
+        {
+            if (superset == null)
+            {
+                throw new ArgumentNullException(nameof(superset));
+            }
+            if (pageNumber <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), pageNumber, "The page number must be positive.");
+            }
+            if (pageSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "The page size must be positive.");
+            }
+
+            int totalItemCount = superset.Length;
+            if (totalItemCount > 0)
+            {
+                if (adjustLastPageWhenExceeding)
+                {
+                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
+                }
+                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                {
+                    return new EmptyPagedList<T>(pageSize);
+                }
+
+                int from = (pageNumber - 1) * pageSize;
+                int count = Math.Min(from + pageSize, totalItemCount);
+                var subset = new T[count];
+                Array.Copy(superset, from, subset, 0, count);
+
+                return new PagedList<T>(subset, pageNumber, pageSize, totalItemCount);
+            }
+            else
+            {
+                return new EmptyPagedList<T>(pageSize);
+            }
+        }
 
         /// <summary>
         /// Creates an <see cref="IPagedList{T}"/> subset from an <see cref="IQueryable{T}"/> <paramref name="superset"/>.
@@ -123,7 +323,8 @@ namespace NovaPagedList
         /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
         /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
         /// <returns>A <see cref="PagedList{T}"/> instance if there are available records, or an <see cref="EmptyPagedList{T}"/>
-        /// instance when the <paramref name="superset"/> is empty.</returns>
+        /// instance when the <paramref name="superset"/> data source is empty or the <paramref name="pageNumber"/> is greater
+        /// than the available pages.</returns>
         public static IPagedList<T> ToPagedList<T>(this IQueryable<T> superset, int pageNumber, int pageSize,
             bool adjustLastPageWhenExceeding = true)
         {
@@ -145,11 +346,11 @@ namespace NovaPagedList
             {
                 if (adjustLastPageWhenExceeding)
                 {
-                    int pageCount = (int) Math.Ceiling((double) totalItemCount / pageSize);
-                    if (pageNumber > pageCount)
-                    {
-                        pageNumber = pageCount;
-                    }
+                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
+                }
+                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                {
+                    return new EmptyPagedList<T>(pageSize);
                 }
 
                 var subset = superset;
@@ -201,11 +402,7 @@ namespace NovaPagedList
 
             if (adjustLastPageWhenExceeding)
             {
-                int pageCount = (int) Math.Ceiling((double) totalItemCount / pageSize);
-                if (pageNumber > pageCount)
-                {
-                    pageNumber = pageCount;
-                }
+                AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
             }
 
             var subset = superset;
