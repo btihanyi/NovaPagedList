@@ -65,9 +65,9 @@ namespace NovaPagedList
                 {
                     AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
                 }
-                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                else if ((pageNumber - 1) * pageSize >= totalItemCount)
                 {
-                    return new EmptyPagedList<T>(pageSize);
+                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
                 }
 
                 var subset = superset;
@@ -123,9 +123,9 @@ namespace NovaPagedList
                 {
                     AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
                 }
-                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                else if ((pageNumber - 1) * pageSize >= totalItemCount)
                 {
-                    return new EmptyPagedList<T>(pageSize);
+                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
                 }
 
                 var subset = (IEnumerable<T>) superset;
@@ -181,15 +181,16 @@ namespace NovaPagedList
                 {
                     AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
                 }
-                else if ((pageNumber - 1) * pageSize < totalItemCount)
-                {
-                    return new EmptyPagedList<T>(pageSize);
-                }
 
                 int from = (pageNumber - 1) * pageSize;
-                int count = Math.Min(from + pageSize, totalItemCount);
+                int count = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
+                if (count <= 0)
+                {
+                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
+                }
+
                 var subset = new List<T>(count);
-                for (int i = from; i < count; i++)
+                for (int i = from; i < from + count; i++)
                 {
                     subset.Add(superset[i]);
                 }
@@ -239,13 +240,13 @@ namespace NovaPagedList
                 {
                     AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
                 }
-                else if ((pageNumber - 1) * pageSize < totalItemCount)
-                {
-                    return new EmptyPagedList<T>(pageSize);
-                }
 
                 int from = (pageNumber - 1) * pageSize;
                 int count = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
+                if (count <= 0)
+                {
+                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
+                }
                 var subset = superset.GetRange(from, count);
 
                 return new PagedList<T>(subset, pageNumber, pageSize, totalItemCount);
@@ -293,13 +294,13 @@ namespace NovaPagedList
                 {
                     AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
                 }
-                else if ((pageNumber - 1) * pageSize < totalItemCount)
-                {
-                    return new EmptyPagedList<T>(pageSize);
-                }
 
                 int from = (pageNumber - 1) * pageSize;
-                int count = Math.Min(from + pageSize, totalItemCount);
+                int count = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
+                if (count <= 0)
+                {
+                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
+                }
                 var subset = new T[count];
                 Array.Copy(superset, from, subset, 0, count);
 
@@ -348,9 +349,9 @@ namespace NovaPagedList
                 {
                     AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
                 }
-                else if ((pageNumber - 1) * pageSize < totalItemCount)
+                else if ((pageNumber - 1) * pageSize >= totalItemCount)
                 {
-                    return new EmptyPagedList<T>(pageSize);
+                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
                 }
 
                 var subset = superset;
