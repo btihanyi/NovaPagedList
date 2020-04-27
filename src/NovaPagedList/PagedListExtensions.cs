@@ -110,6 +110,64 @@ namespace NovaPagedList
             }
         }
 
+
+        /// <summary>
+        /// Creates an <see cref="IPagedList{T}"/> subset from an <see cref="IQueryable{T}"/> <paramref name="superset"/>.
+        /// </summary>
+        /// <typeparam name="T">The record type of the query.</typeparam>
+        /// <param name="superset">The query to be converted to a subset query.</param>
+        /// <param name="pageNumber">The one-based number of the required page. If <paramref name="adjustLastPageWhenExceeding"/>
+        /// is <see langword="true"/> and <paramref name="pageNumber"/> is greater than the available pages, then it will be
+        /// set to the number of the last page.</param>
+        /// <param name="pageSize">The size of the pages.</param>
+        /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
+        /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
+        /// <returns>A <see cref="PagedList{T}"/> instance if there are available records, or an <see cref="EmptyPagedList{T}"/>
+        /// instance when the <paramref name="superset"/> is empty.</returns>
+        public static IPagedList<T> ToPagedList<T>(this IQueryable<T> superset, int pageNumber, int pageSize,
+            bool adjustLastPageWhenExceeding = true)
+        {
+            if (superset == null)
+            {
+                throw new ArgumentNullException(nameof(superset));
+            }
+            if (pageNumber <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageNumber), pageNumber, "The page number must be positive.");
+            }
+            if (pageSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "The page size must be positive.");
+            }
+
+            int totalItemCount = superset.Count();
+            if (totalItemCount > 0)
+            {
+                if (adjustLastPageWhenExceeding)
+                {
+                    int pageCount = (int) Math.Ceiling((double) totalItemCount / pageSize);
+                    if (pageNumber > pageCount)
+                    {
+                        pageNumber = pageCount;
+                    }
+                }
+
+                var subset = superset;
+                if (pageNumber > 1)
+                {
+                    subset = subset.Skip((pageNumber - 1) * pageSize);
+                }
+
+                subset = subset.Take(pageSize);
+
+                return new PagedList<T>(subset.ToList(), pageNumber, pageSize, totalItemCount);
+            }
+            else
+            {
+                return new EmptyPagedList<T>(pageSize);
+            }
+        }
+
         /// <summary>
         /// Creates a new query from the <paramref name="superset"/> without actually executing it. If the <paramref name="totalItemCount"/>
         /// is not known, use the <see cref="ToPagedQueryable{T}(IQueryable{T}, ref int, int, out int, bool)"/> method instead.
