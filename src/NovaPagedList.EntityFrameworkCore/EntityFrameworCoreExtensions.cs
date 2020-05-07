@@ -30,7 +30,7 @@ namespace NovaPagedList
             }
 
             int totalItemCount = await superset.CountAsync();
-            var subset = PagedListExtensions.ToPagedQueryable(superset, ref pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
+            var subset = superset.ToPagedQueryable(ref pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
 
             if (totalItemCount > 0)
             {
@@ -64,12 +64,17 @@ namespace NovaPagedList
             }
 
             int totalItemCount = await superset.CountAsync();
-            var subset = PagedListExtensions.ToPagedQueryable(superset, ref pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
+            var subset = superset.ToPagedQueryable(ref pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
 
             if (totalItemCount > 0)
             {
-                bool isLastPage = (totalItemCount <= pageNumber * pageSize);
+                bool isLastPage = (totalItemCount > (pageNumber - 1) * pageSize) && (totalItemCount <= pageNumber * pageSize);
                 int count = isLastPage ? (((totalItemCount - 1) % pageSize) + 1) : pageSize;
+
+                if (!adjustLastPageWhenExceeding && totalItemCount <= (pageNumber - 1) * pageSize)
+                {
+                    count = 0;
+                }
 
                 return new AsyncPagedList<T>(subset.AsAsyncEnumerable(), count, pageNumber, pageSize, totalItemCount, cacheItems);
             }

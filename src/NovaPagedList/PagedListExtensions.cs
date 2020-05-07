@@ -75,7 +75,7 @@ namespace NovaPagedList
                 {
                     subset = subset.Skip((pageNumber - 1) * pageSize);
                 }
-                subset.Take(pageSize);
+                subset = subset.Take(pageSize);
 
                 var list = CreatePreallocatedList(subset, pageNumber, pageSize, totalItemCount);
                 return new PagedList<T>(list, pageNumber, pageSize, totalItemCount);
@@ -133,7 +133,7 @@ namespace NovaPagedList
                 {
                     subset = subset.Skip((pageNumber - 1) * pageSize);
                 }
-                subset.Take(pageSize);
+                subset = subset.Take(pageSize);
 
                 var list = CreatePreallocatedList(subset, pageNumber, pageSize, totalItemCount);
                 return new PagedList<T>(list, pageNumber, pageSize, totalItemCount);
@@ -385,8 +385,8 @@ namespace NovaPagedList
         /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
         /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
         /// <returns>The query converted to the subset of the <paramref name="superset"/>.</returns>
-        public static IQueryable<T> ToPagedQueryable<T>(IQueryable<T> superset, ref int pageNumber, int pageSize, int totalItemCount,
-            bool adjustLastPageWhenExceeding = true)
+        public static IQueryable<T> ToPagedQueryable<T>(this IQueryable<T> superset, ref int pageNumber, int pageSize,
+            int totalItemCount, bool adjustLastPageWhenExceeding = true)
         {
             if (superset == null)
             {
@@ -430,8 +430,8 @@ namespace NovaPagedList
         /// <param name="adjustLastPageWhenExceeding">If <see langword="true"/> and the <paramref name="pageNumber"/>
         /// is greater than the available pages, it automatically adjusts the page number to the last page.</param>
         /// <returns>The query converted to the subset of the <paramref name="superset"/>.</returns>
-        public static IQueryable<T> ToPagedQueryable<T>(IQueryable<T> superset, ref int pageNumber, int pageSize, out int totalItemCount,
-            bool adjustLastPageWhenExceeding = true)
+        public static IQueryable<T> ToPagedQueryable<T>(this IQueryable<T> superset, ref int pageNumber, int pageSize,
+            out int totalItemCount, bool adjustLastPageWhenExceeding = true)
         {
             totalItemCount = superset.Count();
             return ToPagedQueryable(superset, ref pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);

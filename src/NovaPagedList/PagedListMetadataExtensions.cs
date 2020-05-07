@@ -24,7 +24,7 @@ namespace NovaPagedList
         /// <returns><see langword="true"/> if the current page is the last one; otherwise <see langword="false"/>.</returns>
         public static bool IsLastPage(this IPagedListMetadata metadata)
         {
-            return (metadata.PageNumber == metadata.PageCount);
+            return (metadata.PageNumber == metadata.PageCount && metadata.PageCount > 0);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace NovaPagedList
         /// <returns><see langword="true"/> if the current page is the not first one; otherwise <see langword="false"/>.</returns>
         public static bool HasPreviousPage(this IPagedListMetadata metadata)
         {
-            return !metadata.IsFirstPage();
+            return (metadata.PageNumber > 1 && metadata.PageCount > 0);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace NovaPagedList
         /// <returns><see langword="true"/> if the current page is the not last one; otherwise <see langword="false"/>.</returns>
         public static bool HasNextPage(this IPagedListMetadata metadata)
         {
-            return !metadata.IsLastPage();
+            return (metadata.PageNumber < metadata.PageCount);
         }
     }
 }

@@ -47,11 +47,11 @@ namespace NovaPagedList
             }
 
             this.items = subset ?? throw new ArgumentNullException(nameof(subset));
+            this.PageNumber = pageNumber;
             this.ItemCountOnPage = count;
             this.PageSize = pageSize;
             this.TotalItemCount = totalItemCount;
             this.PageCount = (int) Math.Ceiling((double) TotalItemCount / PageSize);
-            this.PageNumber = Math.Min(pageNumber, PageCount);
             this.CacheItems = cacheItems;
         }
 

@@ -35,15 +35,19 @@ namespace NovaPagedList
             }
             if (subset.Count > pageSize)
             {
-                throw new ArgumentException(nameof(subset), "The subset's size cannot be larger than the page size.");
+                throw new ArgumentOutOfRangeException(nameof(pageSize), "The subset's size cannot be larger than the page size.");
+            }
+            if (subset.Count > totalItemCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(totalItemCount), "The subset's size cannot be larger than the total item count.");
             }
 
             this.items = subset ?? throw new ArgumentNullException(nameof(subset));
 
+            this.PageNumber = pageNumber;
             this.PageSize = pageSize;
             this.TotalItemCount = totalItemCount;
             this.PageCount = (int) Math.Ceiling((double) TotalItemCount / PageSize);
-            this.PageNumber = Math.Min(pageNumber, PageCount);
         }
 
         /// <summary>

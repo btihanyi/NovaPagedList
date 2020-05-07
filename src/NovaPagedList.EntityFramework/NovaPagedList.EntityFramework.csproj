@@ -48,9 +48,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\NovaPagedList\NovaPagedList.csproj">
       <Project>{0d7a338c-f7cb-4c11-b1a0-71e6ac87a616}</Project>
       <Name>NovaPagedList</Name>

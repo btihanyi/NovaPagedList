@@ -24,7 +24,13 @@ namespace NovaPagedList
         public static async Task<IPagedList<T>> ToPagedListAsync<T>(this IQueryable<T> superset, int pageNumber, int pageSize,
             bool adjustLastPageWhenExceeding = true)
         {
-            var subset = PagedListExtensions.ToPagedQueryable(superset, ref pageNumber, pageSize, out int totalItemCount, adjustLastPageWhenExceeding);
+            if (superset is null)
+            {
+                throw new ArgumentNullException(nameof(superset));
+            }
+
+            int totalItemCount = await superset.CountAsync();
+            var subset = superset.ToPagedQueryable(ref pageNumber, pageSize, totalItemCount, adjustLastPageWhenExceeding);
 
             if (totalItemCount > 0)
             {
