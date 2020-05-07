@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NovaPagedList.EntityFramewo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NovaPagedList.EntityFramework", "NovaPagedList.EntityFramework\NovaPagedList.EntityFramework.csproj", "{32AD2A53-3BD2-4857-AB79-617654232347}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NovaPagedList.Tests", "NovaPagedList.Tests\NovaPagedList.Tests.csproj", "{3A2FBA1C-5EF8-4BE2-B258-142F598B49FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{32AD2A53-3BD2-4857-AB79-617654232347}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32AD2A53-3BD2-4857-AB79-617654232347}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32AD2A53-3BD2-4857-AB79-617654232347}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A2FBA1C-5EF8-4BE2-B258-142F598B49FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A2FBA1C-5EF8-4BE2-B258-142F598B49FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A2FBA1C-5EF8-4BE2-B258-142F598B49FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A2FBA1C-5EF8-4BE2-B258-142F598B49FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
