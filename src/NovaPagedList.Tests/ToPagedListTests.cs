@@ -11,7 +11,7 @@ namespace NovaPagedList.Tests
         [TupleData(nameof(GetTestData))]
         public void Enumerable_ToPageListed_Properly(int pageNumber, int pageSize, bool adjustLastPageWhenExceeding)
         {
-            var pagedList = DataSource.ToPagedList(pageNumber, pageSize, adjustLastPageWhenExceeding);
+            var pagedList = DataSource.Unrepeatable().ToPagedList(pageNumber, pageSize, adjustLastPageWhenExceeding);
 
             AssertPagedListMetadaata(pagedList, pageNumber, pageSize, adjustLastPageWhenExceeding);
             AssertPagedListContent(pagedList, pageNumber, pageSize, adjustLastPageWhenExceeding);

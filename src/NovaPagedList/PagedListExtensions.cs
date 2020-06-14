@@ -18,14 +18,6 @@ namespace NovaPagedList
             }
         }
 
-        private static List<T> CreatePreallocatedList<T>(IEnumerable<T> subset, int pageNumber, int pageSize, int totalItemCount)
-        {
-            int capacity = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
-            var list = new List<T>(capacity);
-            list.AddRange(subset);
-            return list;
-        }
-
         /// <summary>
         /// Creates an <see cref="IPagedList{T}"/> subset from an <see cref="IEnumerable{T}"/> <paramref name="superset"/>.
         /// The <see cref="PagedList{T}.TotalItemCount"/> must be calculated first by calling the
@@ -58,27 +50,48 @@ namespace NovaPagedList
                 throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "The page size must be positive.");
             }
 
-            int totalItemCount = superset.Count();
+            int totalItemCount = 0;
+            var subset = new List<T>(pageSize);
+
+            if (adjustLastPageWhenExceeding)
+            {
+                int currentPage = 1;
+
+                foreach (var item in superset)
+                {
+                    totalItemCount++;
+
+                    if (currentPage <= pageNumber && (totalItemCount <= pageNumber * pageSize))
+                    {
+                        if (subset.Count == pageSize)
+                        {
+                            subset.Clear();
+                            currentPage++;
+                        }
+
+                        subset.Add(item);
+                    }
+                }
+
+                pageNumber = currentPage;
+            }
+            else
+            {
+                int skip = (pageNumber - 1) * pageSize;
+
+                foreach (var item in superset)
+                {
+                    if (subset.Count < pageSize && skip-- == 0)
+                    {
+                        subset.Add(item);
+                    }
+                    totalItemCount++;
+                }
+            }
+
             if (totalItemCount > 0)
             {
-                if (adjustLastPageWhenExceeding)
-                {
-                    AdjustLastPage(ref pageNumber, pageSize, totalItemCount);
-                }
-                else if ((pageNumber - 1) * pageSize >= totalItemCount)
-                {
-                    return new PagedList<T>(Array.Empty<T>(), pageNumber, pageSize, totalItemCount);
-                }
-
-                var subset = superset;
-                if (pageNumber > 1)
-                {
-                    subset = subset.Skip((pageNumber - 1) * pageSize);
-                }
-                subset = subset.Take(pageSize);
-
-                var list = CreatePreallocatedList(subset, pageNumber, pageSize, totalItemCount);
-                return new PagedList<T>(list, pageNumber, pageSize, totalItemCount);
+                return new PagedList<T>(subset, pageNumber, pageSize, totalItemCount);
             }
             else
             {
@@ -135,7 +148,10 @@ namespace NovaPagedList
                 }
                 subset = subset.Take(pageSize);
 
-                var list = CreatePreallocatedList(subset, pageNumber, pageSize, totalItemCount);
+                int capacity = Math.Min(totalItemCount - ((pageNumber - 1) * pageSize), pageSize);
+                var list = new List<T>(capacity);
+                list.AddRange(subset);
+
                 return new PagedList<T>(list, pageNumber, pageSize, totalItemCount);
             }
             else
@@ -460,8 +476,7 @@ namespace NovaPagedList
             var subsets = new List<List<T>>();
             List<T>? subset = null;
 
-            var enumerator = superset.GetEnumerator();
-            while (enumerator.MoveNext())
+            foreach (var item in superset)
             {
                 if (subset == null || subset.Count == pageSize)
                 {
@@ -469,7 +484,7 @@ namespace NovaPagedList
                     subsets.Add(subset);
                 }
 
-                subset.Add(enumerator.Current);
+                subset.Add(item);
                 totalItemCount++;
             }
 

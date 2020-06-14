@@ -51,9 +51,13 @@ namespace NovaPagedList.Tests
 
             public T Current => enumerator.Current;
 
-            public ValueTask DisposeAsync() => new ValueTask();
-
             public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(enumerator.MoveNext());
+
+            public ValueTask DisposeAsync()
+            {
+                enumerator.Dispose();
+                return default(ValueTask);
+            }
         }
     }
 

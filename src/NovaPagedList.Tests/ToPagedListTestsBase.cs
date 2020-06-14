@@ -8,7 +8,7 @@ namespace NovaPagedList.Tests
     public class ToPagedListTestsBase
     {
         protected const int DataSourceItemCount = 100;
-        protected static readonly IEnumerable<int> DataSource = new List<int>(Enumerable.Range(1, DataSourceItemCount));
+        protected static readonly IEnumerable<int> DataSource = Enumerable.Range(1, DataSourceItemCount);
 
         public static IEnumerable<(int pageNumber, int pageSize, bool adjustLastPageWhenExceeding)> GetTestData()
         {

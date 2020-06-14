@@ -17,7 +17,7 @@ namespace NovaPagedList.Tests
 
             AssertPagedListMetadaata(asyncPagedList, pageNumber, pageSize, adjustLastPageWhenExceeding);
 
-            var pagedListEnumerator = pagedList.GetEnumerator();
+            using var pagedListEnumerator = pagedList.GetEnumerator();
             await foreach (int item in asyncPagedList)
             {
                 pagedListEnumerator.MoveNext().Should().BeTrue();
