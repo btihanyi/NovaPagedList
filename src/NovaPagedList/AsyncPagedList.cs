@@ -56,32 +56,32 @@ namespace NovaPagedList
         }
 
         /// <summary>
-        /// The one-based number of the current page.
+        /// Gets the one-based number of the current page.
         /// </summary>
         public int PageNumber { get; }
 
         /// <summary>
-        /// The maximum size of a page.
+        /// Gets the maximum size of a page.
         /// </summary>
         public int PageSize { get; }
 
         /// <summary>
-        /// The total number of items in the superset list.
+        /// Gets the total number of items in the superset list.
         /// </summary>
         public int TotalItemCount { get; }
 
         /// <summary>
-        /// The total number of pages in the superset list.
+        /// Gets the total number of pages in the superset list.
         /// </summary>
         public int PageCount { get; }
 
         /// <summary>
-        /// The number of items on the current page.
+        /// Gets the number of items on the current page.
         /// </summary>
         public int ItemCountOnPage { get; }
 
         /// <summary>
-        /// Whether the enumerated items are cached for repeated listings.
+        /// Gets a value indicating whether the enumerated items are cached for repeated listings.
         /// </summary>
         public bool CacheItems { get; }
 

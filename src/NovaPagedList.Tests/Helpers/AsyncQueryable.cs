@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -25,6 +26,7 @@ namespace NovaPagedList.Tests
             return new AsyncEnumerator(this);
         }
 
+        [SuppressMessage("Naming", "RCS1047:Non-asynchronous method name should not end with 'Async'.", Justification = "This is not a real asyn method.")]
         TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             return (TResult) (object) Task.FromResult((T) ((IQueryProvider) this).Execute(expression));

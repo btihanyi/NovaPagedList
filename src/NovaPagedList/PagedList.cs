@@ -51,38 +51,38 @@ namespace NovaPagedList
         }
 
         /// <summary>
-        /// The one-based number of the current page.
+        /// Gets the one-based number of the current page.
         /// </summary>
         public int PageNumber { get; }
 
         /// <summary>
-        /// The maximum size of a page.
+        /// Gets the maximum size of a page.
         /// </summary>
         public int PageSize { get; }
 
         /// <summary>
-        /// The total number of items in the superset list.
+        /// Gets the total number of items in the superset list.
         /// </summary>
         public int TotalItemCount { get; }
 
         /// <summary>
-        /// The total number of pages in the superset list.
+        /// Gets the total number of pages in the superset list.
         /// </summary>
         public int PageCount { get; }
 
         /// <summary>
-        /// The specified item of the current page.
-        /// </summary>
-        /// <param name="index">The zero-based index of current page's items.</param>
-        /// <returns>The item at the specified index.</returns>
-        public T this[int index] => items[index];
-
-        /// <summary>
-        /// The number of items on the current page.
+        /// Gets the number of items on the current page.
         /// </summary>
         public int Count => items.Count;
 
         int IPagedListMetadata.ItemCountOnPage => items.Count;
+
+        /// <summary>
+        /// Gets the specified item of the current page.
+        /// </summary>
+        /// <param name="index">The zero-based index of current page's items.</param>
+        /// <returns>The item at the specified index.</returns>
+        public T this[int index] => items[index];
 
         /// <summary>
         /// Returns an enumerator that iterates through the current page's items.
