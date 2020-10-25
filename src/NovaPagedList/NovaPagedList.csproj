@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>Balazs Tihanyi</Authors>
     <Company />
     <Description>Pagination library for .NET projects, built using the latest technologies.</Description>
@@ -29,6 +29,7 @@
 
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\NovaPagedList.ruleset</CodeAnalysisRuleSet>
+    <PackageReleaseNotes>Huge performance improvements for LINQ to Objects (IEnumerable &amp; co.), especially for list and array sources.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
